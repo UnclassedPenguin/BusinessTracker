@@ -24,6 +24,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 database = config['DEFAULT']['database']
+businessname = config['DEFAULT']['name']
 import mainwindow, searchexpenseswindow, searchincomewindow, printwindow, tablewindow, addtypedialog
 
 
@@ -41,6 +42,9 @@ class BusinessTracker(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
     def initial_config(self):
         self.create_tables()
         self.type_setup()
+        self.label.setText(businessname)
+        self.label_7.setText(businessname)
+        self.label_8.setText(businessname)
         self.dateLabel.setText(datetime.now().strftime("%a %b %d, %Y"))
         self.dateLabel_2.setText(datetime.now().strftime("%a %b %d, %Y"))
         self.dateLabel_3.setText(datetime.now().strftime("%a %b %d, %Y"))
@@ -208,8 +212,8 @@ class BusinessTracker(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         conn.close()
 
         self.balanceLabel.setText("{}".format(overallbalance))
-        self.totalexpenseLabel.setText("{}".format(sumexpenses))
-        self.totalincomeLabel.setText("{}".format(sumincome))
+        self.totalexpenseLabel.setText("{}".format(f'{sumexpenses:.2f}'))
+        self.totalincomeLabel.setText("{}".format(f'{sumincome:.2f}'))
 
         if float(overallbalance) <= 0:
             self.balanceLabel.setStyleSheet('color: red')
@@ -234,37 +238,40 @@ class BusinessTracker(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         global database
         #global counter
 
-        if len(self.itemEdit.text()) == 0 or len(self.priceEdit.text()) == 0:
-            print("Doesn't work!")
-            self.msg('crit', 'Error', 'Save Error', 'Please enter item and price')
-        else:
-            currentdate = datetime.now().strftime('%Y-%m-%d')
-            date = self.dateEdit.date().toPyDate()
-            expensetype = self.expensetypeBox.currentText()
-            item = self.itemEdit.text()
-            price = self.priceEdit.text()
-            notes = self.notesEdit.text()
-            print("Date: {}".format(date))
-            print("Type: {}".format(expensetype))
-            print("Item: {}".format(item))
-            print("Price: {}".format(price))
-            print("Notes: {}".format(notes))
+        try:
+            if len(self.itemEdit.text()) == 0 or len(self.priceEdit.text()) == 0:
+                print("Doesn't work!")
+                self.msg('crit', 'Error', 'Save Error', 'Please enter item and price')
+            else:
+                currentdate = datetime.now().strftime('%Y-%m-%d')
+                date = self.dateEdit.date().toPyDate()
+                expensetype = self.expensetypeBox.currentText()
+                item = self.itemEdit.text()
+                price = self.priceEdit.text()
+                notes = self.notesEdit.text()
+                print("Date: {}".format(date))
+                print("Type: {}".format(expensetype))
+                print("Item: {}".format(item))
+                print("Price: {}".format(price))
+                print("Notes: {}".format(notes))
 
-            data = (date, expensetype, item, price, notes)
+                data = (date, expensetype, item, price, notes)
 
-            conn = sqlite3.connect(database)
-            curs = conn.cursor()
-            curs.execute('''INSERT INTO Expenses(date, type, item, price, notes) VALUES(?,?,?,?,?)''', data)
-            conn.commit()
-            conn.close()
-        self.overallbalance()
+                conn = sqlite3.connect(database)
+                curs = conn.cursor()
+                curs.execute('''INSERT INTO Expenses(date, type, item, price, notes) VALUES(?,?,?,?,?)''', data)
+                conn.commit()
+                conn.close()
+                self.overallbalance()
+        except:
+            self.msg('crit', 'Error', 'Save Error', 'Please use a different name, its taken')
         print('\n')
 
     def displayall_Expenses(self):
         conn = sqlite3.connect(database)
         curs = conn.cursor()
 
-        templist = ['date', 'type', 'item', 'price', 'notes'] 
+        templist = ['Date', 'Type', 'Item', 'Price', 'Notes']
 
         self.sql = "SELECT date, type, item, price, notes from Expenses"
         x = pd.read_sql_query(self.sql, conn)
@@ -298,40 +305,44 @@ class BusinessTracker(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         print("==== def addincome_Button(self): ====")
         global database
 
-        if len(self.itemEdit_2.text()) == 0 or len(self.priceEdit_2.text()) == 0:
-            print("Doesn't work!")
-            self.msg('crit', 'Error', 'Save Error', 'Please enter item and price')
-        else:
-            currentdate = datetime.now().strftime('%Y-%m-%d')
-            date = self.dateEdit_2.date().toPyDate()
-            incometype = self.incometypeBox.currentText()
-            item = self.itemEdit_2.text()
-            price = self.priceEdit_2.text()
-            notes = self.notesEdit_2.text()
-            print("Date: {}".format(date))
-            print("Type: {}".format(incometype))
-            print("Item: {}".format(item))
-            print("Price: {}".format(price))
-            print("Notes: {}".format(notes))
+        try:
+            if len(self.itemEdit_2.text()) == 0 or len(self.priceEdit_2.text()) == 0:
+                print("Doesn't work!")
+                self.msg('crit', 'Error', 'Save Error', 'Please enter item and price')
+            else:
+                currentdate = datetime.now().strftime('%Y-%m-%d')
+                date = self.dateEdit_2.date().toPyDate()
+                incometype = self.incometypeBox.currentText()
+                item = self.itemEdit_2.text()
+                price = self.priceEdit_2.text()
+                notes = self.notesEdit_2.text()
+                print("Date: {}".format(date))
+                print("Type: {}".format(incometype))
+                print("Item: {}".format(item))
+                print("Price: {}".format(price))
+                print("Notes: {}".format(notes))
 
-            data = (date, incometype, item, price, notes)
+                data = (date, incometype, item, price, notes)
 
-            conn = sqlite3.connect(database)
-            curs = conn.cursor()
-            curs.execute('''INSERT INTO Income(date, type, item, price, notes) VALUES(?,?,?,?,?)''', data)
-            conn.commit()
-            conn.close()
+                conn = sqlite3.connect(database)
+                curs = conn.cursor()
+                curs.execute('''INSERT INTO Income(date, type, item, price, notes) VALUES(?,?,?,?,?)''', data)
+                conn.commit()
+                conn.close()
 
-        self.overallbalance()
+            self.overallbalance()
+        except:
+            self.msg('crit', 'Error', 'Save Error', 'Please use a different name, its taken')
+
         print('\n')
 
     def displayall_Income(self):
         conn = sqlite3.connect(database)
         curs = conn.cursor()
 
-        templist = ['date', 'item', 'price', 'notes'] 
+        templist = ['Date', 'Type', 'Item', 'Price', 'Notes']
 
-        self.sql = "SELECT date, item, price, notes from Income"
+        self.sql = "SELECT date, type, item, price, notes from Income"
         x = pd.read_sql_query(self.sql, conn)
         y=x.sort_values(by=['date'])
         self.window = DisplayPage()
@@ -410,12 +421,203 @@ class searchexpenseswindow(QtWidgets.QMainWindow, searchexpenseswindow.Ui_MainWi
         self.setupUi(self)
         self.dialogs = []
 
+        self.initial_Config()
+
+        self.searchdateButton.clicked.connect(self.search_Date)
+        self.searchtypeButton.clicked.connect(self.search_Type)
+        self.quit2Button.clicked.connect(self.close)
+        self.dateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+
+    def initial_Config(self):
+        global database
+        conn = sqlite3.connect(database)
+        curs = conn.cursor()
+
+        curs.execute('SELECT expensetype FROM type')
+        dirtyexpensetype = curs.fetchall()
+        self.expensetype = []
+        self.expensetype = list(sum(dirtyexpensetype, ()))
+        self.expensetype = list(filter((None).__ne__, self.expensetype))
+        self.expensetype.sort()
+        print("Clean expense types: {}".format(self.expensetype))
+        self.typeBox.clear()
+        self.typeBox.addItems(self.expensetype)
+
+        conn.close()
+
+    def search_Type(self):
+        print("\n")
+        print("==== def search_Type(self): ====")
+
+        global database
+        conn = sqlite3.connect(database)
+        curs = conn.cursor()
+
+        templist = ['Date', 'Type', 'Item', 'Price', 'Notes']
+        expensetype = self.typeBox.currentText()
+        print(expensetype)
+        self.sql = "SELECT date, type, item, price, notes from Expenses where type IS " + "'" + \
+                    expensetype + "'"
+        print(self.sql)
+        x = pd.read_sql_query(self.sql, conn)
+        x.index = x.index + 1
+        if isinstance(x, pd.core.frame.DataFrame):
+            self.window = DisplayPage()
+            df = x
+            self.window.table.setColumnCount(len(df.columns))
+            self.window.table.setRowCount(len(df.index))
+            self.window.table.setHorizontalHeaderLabels(templist)
+            for i in range(len(df.index)):
+                for j in range(len(df.columns)):
+                    self.window.table.setItem(i,j,QTableWidgetItem(str(df.iloc[i, j])))
+            self.window.table.setWordWrap(True)
+            self.window.table.resizeRowsToContents()
+            self.window.table.resizeColumnsToContents()
+            self.window.show()
+        elif isinstance(self.y, pd.core.frame.DataFrame) == False:
+            pass
+
+        conn.close()
+
+        print("\n")
+
+    def search_Date(self):
+        print("\n")
+        print("==== def search_Date(self): ====")
+
+        global database
+        conn = sqlite3.connect(database)
+        curs = conn.cursor()
+
+        templist = ['Date', 'Type', 'Item', 'Price', 'Notes']
+        date = str(self.dateEdit.date().toPyDate())
+        self.sql = "SELECT date, type, item, price, notes from Expenses where date IS " + "'" + \
+                    date + "'"
+        print(self.sql)
+        x = pd.read_sql_query(self.sql, conn)
+        x.index = x.index + 1
+        if isinstance(x, pd.core.frame.DataFrame):
+            self.window = DisplayPage()
+            df = x
+            self.window.table.setColumnCount(len(df.columns))
+            self.window.table.setRowCount(len(df.index))
+            self.window.table.setHorizontalHeaderLabels(templist)
+            for i in range(len(df.index)):
+                for j in range(len(df.columns)):
+                    self.window.table.setItem(i,j,QTableWidgetItem(str(df.iloc[i, j])))
+            self.window.table.setWordWrap(True)
+            self.window.table.resizeRowsToContents()
+            self.window.table.resizeColumnsToContents()
+            self.window.show()
+        elif isinstance(self.y, pd.core.frame.DataFrame) == False:
+            pass
+
+        conn.close()
+
+        print("\n")
+
+
 class searchincomewindow(QtWidgets.QMainWindow, searchincomewindow.Ui_MainWindow):
 
     def __init__(self,  parent=None):
         super(searchincomewindow, self).__init__()
         self.setupUi(self)
         self.dialogs = []
+
+        self.initial_Config()
+
+        self.searchdateButton.clicked.connect(self.search_Date)
+        self.searchtypeButton.clicked.connect(self.search_Type)
+        self.quit2Button.clicked.connect(self.close)
+        self.dateEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+
+    def initial_Config(self):
+        global database
+        conn = sqlite3.connect(database)
+        curs = conn.cursor()
+
+        curs.execute('SELECT incometype FROM type')
+        dirtyincometype = curs.fetchall()
+        self.incometype = []
+        self.incometype = list(sum(dirtyincometype, ()))
+        self.incometype = list(filter((None).__ne__, self.incometype))
+        self.incometype.sort()
+        print("Clean income types: {}".format(self.incometype))
+        self.typeBox.clear()
+        self.typeBox.addItems(self.incometype)
+        conn.close()
+
+    def search_Type(self):
+        print("\n")
+        print("==== def search_Type(self): ====")
+
+        global database
+        conn = sqlite3.connect(database)
+        curs = conn.cursor()
+
+        templist = ['Date', 'Type', 'Item', 'Price', 'Notes']
+        incometype = self.typeBox.currentText()
+        print(incometype)
+        self.sql = "SELECT date, type, item, price, notes from Income where type IS " + "'" + \
+                    incometype + "'"
+        print(self.sql)
+        x = pd.read_sql_query(self.sql, conn)
+        x.index = x.index + 1
+        if isinstance(x, pd.core.frame.DataFrame):
+            self.window = DisplayPage()
+            df = x
+            self.window.table.setColumnCount(len(df.columns))
+            self.window.table.setRowCount(len(df.index))
+            self.window.table.setHorizontalHeaderLabels(templist)
+            for i in range(len(df.index)):
+                for j in range(len(df.columns)):
+                    self.window.table.setItem(i,j,QTableWidgetItem(str(df.iloc[i, j])))
+            self.window.table.setWordWrap(True)
+            self.window.table.resizeRowsToContents()
+            self.window.table.resizeColumnsToContents()
+            self.window.show()
+        elif isinstance(self.y, pd.core.frame.DataFrame) == False:
+            pass
+
+        conn.close()
+
+        print("\n")
+
+    def search_Date(self):
+        print("\n")
+        print("==== def search_Date(self): ====")
+
+        global database
+        conn = sqlite3.connect(database)
+        curs = conn.cursor()
+
+        templist = ['Date', 'Type', 'Item', 'Price', 'Notes']
+        date = str(self.dateEdit.date().toPyDate())
+        self.sql = "SELECT date, type, item, price, notes from Income where date IS " + "'" + \
+                    date + "'"
+        print(self.sql)
+        x = pd.read_sql_query(self.sql, conn)
+        x.index = x.index + 1
+        if isinstance(x, pd.core.frame.DataFrame):
+            self.window = DisplayPage()
+            df = x
+            self.window.table.setColumnCount(len(df.columns))
+            self.window.table.setRowCount(len(df.index))
+            self.window.table.setHorizontalHeaderLabels(templist)
+            for i in range(len(df.index)):
+                for j in range(len(df.columns)):
+                    self.window.table.setItem(i,j,QTableWidgetItem(str(df.iloc[i, j])))
+            self.window.table.setWordWrap(True)
+            self.window.table.resizeRowsToContents()
+            self.window.table.resizeColumnsToContents()
+            self.window.show()
+        elif isinstance(self.y, pd.core.frame.DataFrame) == False:
+            pass
+
+        conn.close()
+
+        print("\n")
+
 
 class DisplayPage(QtWidgets.QMainWindow, tablewindow.Ui_MainWindow):
 
