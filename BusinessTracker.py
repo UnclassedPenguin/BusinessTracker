@@ -83,10 +83,12 @@ class BusinessTracker(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
                    (numid integer primary key, date, type, item, price, notes)''')
         curs.execute('''create table if not exists Income
                    (numid integer primary key, date, type, item, price,  notes)''')
+        '''
         curs.execute("create unique index if not exists" \
                      " numidx_expenses_name on Expenses (item);")
         curs.execute("create unique index if not exists" \
                      " numidx_income_name on Income (item);")
+        '''
         conn.commit()
         conn.close()
 
